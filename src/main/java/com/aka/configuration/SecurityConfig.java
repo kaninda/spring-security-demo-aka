@@ -28,6 +28,7 @@ public class SecurityConfig {
                             auth.anyRequest().permitAll();
                         }
                 ).formLogin(Customizer.withDefaults())
+                .authenticationProvider(new DanielAuthenticationProvider())
                 .oauth2Login(Customizer.withDefaults())
                 .addFilterBefore(new RobotFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
