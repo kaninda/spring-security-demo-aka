@@ -1,5 +1,7 @@
 package com.aka.controller;
 
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
@@ -17,10 +19,20 @@ public class SimpleController {
         return "hello 🥳🤩" + getUSerName(authentication) + " this is a private part";
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ROBOT')")
+    @GetMapping("/robot")
+    public String robotPage(Authentication authentication){
+        System.out.println(authentication.getName());
+        return "Hello Robot";
+    }
+
     @GetMapping("/")
     public String publicPage() {
         return "hello, this is only public side";
     }
+
+
 
     private String getUSerName(Authentication authentication) {
         return Optional.of(authentication)
