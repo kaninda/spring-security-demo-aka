@@ -30,6 +30,7 @@ public class SecurityConfig {
                 ).formLogin(Customizer.withDefaults())
                 .authenticationProvider(new DanielAuthenticationProvider())
                 .oauth2Login(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(new RobotFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
