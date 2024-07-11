@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -30,6 +31,10 @@ public class SecurityConfig {
             HttpSecurity http,
             AuthenticationEventPublisher eventPublisher) throws Exception {
         http.getSharedObject(AuthenticationManagerBuilder.class).authenticationEventPublisher(eventPublisher);
+       //Solution temporaire pour recuperer l' authenticationManager
+        //1. Creation du Provider manager, mais c'est springboot qui devrait nous le retourner
+        var manager = new ProviderManager(new RobotAuthenticationProvider("beep-boop", "bipbip"));
+        manager.setAuthenticationEventPublisher(eventPublisher);
         return http.authorizeHttpRequests(
                         auth -> {
                             auth.requestMatchers("/private").authenticated();
@@ -39,7 +44,9 @@ public class SecurityConfig {
                 .authenticationProvider(new DanielAuthenticationProvider())
                 .oauth2Login(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
-                .addFilterBefore(new RobotFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        new RobotFilter(manager),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

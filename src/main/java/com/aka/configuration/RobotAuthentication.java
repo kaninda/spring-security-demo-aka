@@ -9,15 +9,37 @@ import java.util.Collections;
 import java.util.List;
 
 public class RobotAuthentication implements Authentication {
+
+    private Collection<? extends GrantedAuthority> authorities;
+    private Object password;
+    private Boolean authenticated;
+
+    private RobotAuthentication(Collection<? extends GrantedAuthority> authorities, Object password){
+         this.authorities = authorities;
+         this.authenticated = !authorities.isEmpty();
+         this.password = password;
+    }
+
+    //Quand il est authentifié
+    public static RobotAuthentication authenticated() {
+        return new RobotAuthentication(Collections.singleton(new SimpleGrantedAuthority("ROLE_ROBOT")), null);
+    }
+
+    //Quand je ne suis pas authentifié
+    public static RobotAuthentication token(String password){
+        return new RobotAuthentication(Collections.emptyList(), password);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_ROBOT"));
+        return authorities;
     }
 
     @Override
     public Object getCredentials() {
-        return null;
+        return password;
     }
+
 
     @Override
     public Object getDetails() {
@@ -31,7 +53,7 @@ public class RobotAuthentication implements Authentication {
 
     @Override
     public boolean isAuthenticated() {
-        return true;
+        return authenticated;
     }
 
     @Override

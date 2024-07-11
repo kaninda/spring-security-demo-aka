@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,6 +16,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class RobotFilter extends OncePerRequestFilter {
+
+    private final String HEADER_NAME = "x-robot-password";
+    private final AuthenticationManager authenticationManager;
+
+    public RobotFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -25,10 +34,14 @@ public class RobotFilter extends OncePerRequestFilter {
            filterChain.doFilter(request, response);
            return;
         }
-        String robotPassword = request.getHeader("x-robot-password");
-        if( robotPassword != null && robotPassword.equals("bipbip")){
+
+        String robotPassword = request.getHeader(HEADER_NAME);
+        RobotAuthentication token = RobotAuthentication.token(robotPassword);
+        //Il va appeler l authenticate de authenticationProvider
+        Authentication authentication = authenticationManager.authenticate(token);
+        if(authentication != null){
             SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
-            emptyContext.setAuthentication(new RobotAuthentication());
+            emptyContext.setAuthentication(authentication);
             SecurityContextHolder.setContext(emptyContext);
             filterChain.doFilter(request, response);
         }else {
