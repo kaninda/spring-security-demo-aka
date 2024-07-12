@@ -31,8 +31,6 @@ public class SecurityConfig {
             HttpSecurity http,
             AuthenticationEventPublisher eventPublisher) throws Exception {
         http.getSharedObject(AuthenticationManagerBuilder.class).authenticationEventPublisher(eventPublisher);
-       //Solution temporaire pour recuperer l' authenticationManager
-        //1. Creation du Provider manager, mais c'est springboot qui devrait nous le retourner
         var manager = new ProviderManager(new RobotAuthenticationProvider("beep-boop", "bipbip"));
         manager.setAuthenticationEventPublisher(eventPublisher);
         return http.authorizeHttpRequests(
