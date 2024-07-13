@@ -1,6 +1,5 @@
 package com.aka.configuration;
 
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -30,9 +28,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             AuthenticationEventPublisher eventPublisher) throws Exception {
-        http.getSharedObject(AuthenticationManagerBuilder.class).authenticationEventPublisher(eventPublisher);
-        var manager = new ProviderManager(new RobotAuthenticationProvider("beep-boop", "bipbip"));
-        manager.setAuthenticationEventPublisher(eventPublisher);
+
+        RobotConfigurer robotCongigurer = new RobotConfigurer().password("beep-boop").password("bipbip");
+        http.apply(robotCongigurer);
         return http.authorizeHttpRequests(
                         auth -> {
                             auth.requestMatchers("/private").authenticated();
@@ -42,9 +40,6 @@ public class SecurityConfig {
                 .authenticationProvider(new DanielAuthenticationProvider())
                 .oauth2Login(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
-                .addFilterBefore(
-                        new RobotFilter(manager),
-                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -9,21 +9,20 @@ import java.util.List;
 
 public class RobotAuthenticationProvider implements AuthenticationProvider {
 
-    private final List<String> password;
+    private final List<String> passwords;
 
-    public RobotAuthenticationProvider(String ...password) {
-        this.password = Arrays.asList(password);
+    public RobotAuthenticationProvider(List <String> passwords) {
+        this.passwords = passwords;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         var auth = (RobotAuthentication)authentication;
-        if (password.contains(auth.getCredentials())){
+        if (passwords.contains(auth.getCredentials())){
             return RobotAuthentication.authenticated();
         }else{
             return null;
         }
-
     }
 
     @Override
